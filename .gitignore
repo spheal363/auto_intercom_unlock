@@ -1,1 +1,2 @@
-config.properties
+main/resources/config.properties
+main/out/
