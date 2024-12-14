@@ -36,6 +36,7 @@ public class Notify {
         return properties.getProperty("token");
     }
 
+    // LINEに通知を送信するメソッド
     public static void sendLineBroadcastMessage(String token, String jsonMessage) throws IOException {
         URL url = new URL("https://api.line.me/v2/bot/message/broadcast");
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
