@@ -2,14 +2,17 @@
 
 ## I2Cインターフェースの有効化
 ```
-~/auto_intercom_unlock/src/main $ javac -d out java/*.java
+$ sudo raspi-config
 ```
+1. `3 Interface Options`を選択
+![2024-12-18_17h28_48](https://github.com/user-attachments/assets/dfb1a6ce-5d4b-4070-9f7c-5936946b3c15)
 
-```
-~/auto_intercom_unlock/src/main $ java -cp out Notify
-Response: {}
-LINEに通知を送信しました。
-```
+2. `I5 I2C`を選択
+![2024-12-18_17h29_00](https://github.com/user-attachments/assets/f8df0a25-4184-4e67-8e06-537599248cae)
 
-## 実際の画面
-![スクリーンショット 2024-12-14 192028](https://github.com/user-attachments/assets/8fa03418-8ae4-4f56-9589-4157bcc355d3)
+3. `<はい>`を選択
+![2024-12-18_17h29_08](https://github.com/user-attachments/assets/768f4e4c-259c-47b0-b7dd-42f21ba7f79e)
+![2024-12-18_17h29_15](https://github.com/user-attachments/assets/0cb6fdfa-14ac-408f-896c-8982514edcbb)
+
+
+
