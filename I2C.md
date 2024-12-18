@@ -14,5 +14,13 @@ $ sudo raspi-config
 ![2024-12-18_17h29_08](https://github.com/user-attachments/assets/768f4e4c-259c-47b0-b7dd-42f21ba7f79e)
 ![2024-12-18_17h29_15](https://github.com/user-attachments/assets/0cb6fdfa-14ac-408f-896c-8982514edcbb)
 
+## i2c-toolsのインストール
+```
+$ sudo apt-get install i2c-tools
+```
 
-
+## インストール確認
+```
+$ lsmod | grep i2c_dev
+i2c_dev                16384  0
+```
