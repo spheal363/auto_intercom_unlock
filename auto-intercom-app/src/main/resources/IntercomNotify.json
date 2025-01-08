@@ -1,0 +1,29 @@
+{
+    "messages": [
+        {
+            "type": "image",
+            "originalContentUrl": "https://stickershop.line-scdn.net/stickershop/v1/product/8671915/LINEStorePC/main.png?v=1",
+            "previewImageUrl": "https://stickershop.line-scdn.net/stickershop/v1/product/8671915/LINEStorePC/main.png?v=1"
+        },
+        {
+            "type": "template",
+            "altText": "（テスト）誰かがインターホンを押したみたい",
+            "template": {
+                "type": "confirm",
+                "text": "（テスト）誰かがインターホンを押したよ。ドア開ける?",
+                "actions": [
+                    {
+                        "type": "message",
+                        "label": "あける",
+                        "text": "あける"
+                    },
+                    {
+                        "type": "message",
+                        "label": "あけない",
+                        "text": "あけない"
+                    }
+                ]
+            }
+        }
+    ]
+}

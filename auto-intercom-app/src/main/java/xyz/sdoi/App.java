@@ -1,12 +1,12 @@
-package auto_intercom_unlock;
+package xyz.sdoi;
 
 import java.io.IOException;
 
-public class Notify {
+public class App {
     public static void main(String[] args) {
         try {
             // トークン読み込み
-            String token = TokenLoader.loadToken("resources/config.properties");
+            String token = TokenLoader.loadToken();
 
             // インターホンが押されたときのメッセージ作成
             String jsonMessage = MessageCreate.LINEMessageCreate("IntercomNotify");
