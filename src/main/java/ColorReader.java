@@ -11,27 +11,31 @@ public class ColorReader {
         I2CConfig config = I2C.newConfigBuilder(pi4j)
                 .id("s11059")
                 .bus(1)
-                .device(0x2A) // デバイスアドレス
+                .device(0x2A)
                 .build();
 
         I2C device = i2cProvider.create(config);
 
         try {
-            // センサーの初期化とリセット
-            initializeSensor(device);
+            while (true) {
+                // センサーの初期化とリセット
+                initializeSensor(device);
+                // RGBデータの読み取り
+                int redValue = readColorValue(device, 0x03);
+                int greenValue = readColorValue(device, 0x05);
+                int blueValue = readColorValue(device, 0x07);
 
-            // RGBデータの読み取り
-            int redValue = readColorValue(device, 0x03);
-            int greenValue = readColorValue(device, 0x05);
-            int blueValue = readColorValue(device, 0x07);
+                System.out.println("Red: " + redValue);
+                System.out.println("Green: " + greenValue);
+                System.out.println("Blue: " + blueValue);
 
-            System.out.println("Red: " + redValue);
-            System.out.println("Green: " + greenValue);
-            System.out.println("Blue: " + blueValue);
+                // 色の判定
+                String color = determineColor(redValue, greenValue, blueValue);
+                System.out.println("判定結果: " + color);
 
-            // 色の判定
-            String color = determineColor(redValue, greenValue, blueValue);
-            System.out.println("判定結果: " + color);
+                // 1秒待機
+                Thread.sleep(1000);
+            }
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -40,22 +44,22 @@ public class ColorReader {
         }
     }
 
-    // センサーを初期化するメソッド
+    // センサーの初期化
     private static void initializeSensor(I2C device) throws Exception {
         device.writeRegister(0x00, (byte) 0x84); // 動作モード、ADCリセット
-        Thread.sleep(10); // リセットのための短い待機時間
+        Thread.sleep(100); // リセットのための短い待機時間
         device.writeRegister(0x00, (byte) 0x04); // 動作開始
-        Thread.sleep(2184); // 積分時間の待機
+        Thread.sleep(200); // 積分時間の待機
     }
 
-    // RGB値を読み取るためのヘルパーメソッド
+    // RGB値の読み取り
     private static int readColorValue(I2C device, int register) throws Exception {
         byte[] buffer = new byte[2];
         device.readRegister(register, buffer);
         return ((buffer[0] & 0xFF) << 8) | (buffer[1] & 0xFF);
     }
 
-    // 色を判定するためのロジック
+    // 色判定
     private static String determineColor(int red, int green, int blue) {
         int threshold = 100;
 
