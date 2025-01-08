@@ -1,2 +1,5 @@
-main/resources/config.properties
+*.class
+src/main/resources/config.properties
+auto-intercom-app/src/main/resources/config.properties
+auto-intercom-app/target/
 main/out/
