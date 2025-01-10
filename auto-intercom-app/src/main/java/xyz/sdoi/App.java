@@ -41,12 +41,14 @@ public class App {
 
                 if (total < 80 && greenRatio > 0.5 && !notificationSent) {
                     sendLineNotification();
+                    ServoMotorControl.IntercomPush();
+
                     notificationSent = true;
                     System.out.println("緑値が相対的に高いため通知を送信しました: "
                             + "赤 " + red + " 緑 " + green + " 青 " + blue
                             + " 総和 " + total + " 緑割合 " + greenRatio);
 
-                    Thread.sleep(30000); // 30秒スリープ
+                    Thread.sleep(10000); // 30秒スリープ
                     notificationSent = false; // 再度通知を許可
                 } else {
                     System.out.println("赤: " + red + " 緑: " + green + " 青: " + blue
