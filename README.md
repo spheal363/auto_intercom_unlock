@@ -27,3 +27,6 @@ Response: {}
 ![2025-01-08_20h01_42](https://github.com/user-attachments/assets/2e6757e5-7346-4c44-add4-489e439228ec)
 - LINE
 ![スクリーンショット 2024-12-14 192028](https://github.com/user-attachments/assets/8fa03418-8ae4-4f56-9589-4157bcc355d3)
+
+## 配線
+![128143](https://github.com/user-attachments/assets/02bb864e-83f3-4173-a825-2ff025f65ff5)
