@@ -29,24 +29,29 @@
     <dependency>
       <groupId>com.pi4j</groupId>
       <artifactId>pi4j-core</artifactId>
-      <version>2.7.0</version>
+      <version>${pi4j.version}</version>
     </dependency>
 
     <!-- Pi4J Plugins -->
     <dependency>
       <groupId>com.pi4j</groupId>
       <artifactId>pi4j-plugin-raspberrypi</artifactId>
-      <version>2.7.0</version>
+      <version>${pi4j.version}</version>
     </dependency>
     <dependency>
       <groupId>com.pi4j</groupId>
       <artifactId>pi4j-plugin-pigpio</artifactId>
-      <version>2.7.0</version>
+      <version>${pi4j.version}</version>
     </dependency>
     <dependency>
       <groupId>com.pi4j</groupId>
       <artifactId>pi4j-plugin-linuxfs</artifactId>
-      <version>2.7.0</version>
+      <version>${pi4j.version}</version>
+    </dependency>
+    <dependency>
+        <groupId>ch.qos.logback</groupId>
+        <artifactId>logback-classic</artifactId>
+        <version>1.4.11</version>
     </dependency>
   </dependencies>
 
