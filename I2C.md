@@ -18,66 +18,34 @@ $ sudo raspi-config
 ```
 $ sudo apt-get install i2c-tools
 ```
-
 ## インストール確認
 ```
 $ lsmod | grep i2c_dev
 i2c_dev                16384  0
 ```
 
-## Pi4Jのインストールする
-- 参考：[JavaでRaspberry PiのGPIOを制御してLチカしてみる](https://reasonable-code.com/raspberrypi-java/)
+## pigpioライブラリのインストール
 ```
-$ curl -sSL https://pi4j.com/install | sudo bash
-====================================================
-INSTALLING Pi4J GPG PUBLIC KEY
-====================================================
-Warning: apt-key is deprecated. Manage keyring files in trusted.gpg.d instead (see apt-key(8)).
-OK
-====================================================
-ADDING Pi4J APT REPOSITORY
-====================================================
-====================================================
-UPDATING APT REPOSITORIES
-====================================================
-取得:1 https://www.pi4j.com/download v1 InRelease [3,840 B]
-取得:2 https://www.pi4j.com/download v1/stable all Packages [889 B]
-4,729 B を 1秒 で取得しました (3,334 B/s)
-パッケージリストを読み込んでいます... 完了
-W: https://pi4j.com/download/dists/v1/InRelease: Key is stored in legacy trusted.gpg keyring (/etc/apt/trusted.gpg), see the DEPRECATION section in apt-key(8) for details.
-====================================================
-INSTALLING Pi4J
-====================================================
-パッケージリストを読み込んでいます... 完了
-依存関係ツリーを作成しています... 完了        
-状態情報を読み取っています... 完了        
-以下のパッケージが自動でインストールされましたが、もう必要とされていません:
-  libwlroots12
-これを削除するには 'sudo apt autoremove' を利用してください。
-以下のパッケージが新たにインストールされます:
-  pi4j
-アップグレード: 0 個、新規インストール: 1 個、削除: 0 個、保留: 1 個。
-579 kB のアーカイブを取得する必要があります。
-この操作後に追加で 827 kB のディスク容量が消費されます。
-取得:1 https://www.pi4j.com/download v1/stable all pi4j all 1.4 [579 kB]
-579 kB を 1秒 で取得しました (496 kB/s)
-以前に未選択のパッケージ pi4j を選択しています。
-(データベースを読み込んでいます ... 現在 149141 個のファイルとディレクトリがインストールされています。)
-.../apt/archives/pi4j_1.4_all.deb を展開する準備をしています ...
-pi4j (1.4) を展開しています...
-pi4j (1.4) を設定しています ...
-====================================================
-Pi4J INSTALLATION COMPLETE
-====================================================
+$ sudo apt install pigpio
+```
 
-The Pi4J JAR files are located at:
-/opt/pi4j/lib
+## pigpioデーモンの常時起動
+```
+$ sudo systemctl start pigpiod
+$ sudo systemctl enable pigpiod
+$ sudo systemctl status pigpiod
+sdoi@raspberrypi:~ $ sudo systemctl status pigpiod
+🟢 pigpiod.service - Daemon required to control GPIO pins via pigpio
+     Loaded: loaded (/lib/systemd/system/pigpiod.service; enabled; vendor preset: enabled)
+    Drop-In: /etc/systemd/system/pigpiod.service.d
+             └─public.conf
+     Active: active (running) since Mon 2025-02-17 19:15:28 JST; 2min 51s ago
+    Process: 3739 ExecStart=/usr/bin/pigpiod (code=exited, status=0/SUCCESS)
+   Main PID: 3740 (pigpiod)
+      Tasks: 4 (limit: 949)
+        CPU: 10.678s
+     CGroup: /system.slice/pigpiod.service
+             └─3740 /usr/bin/pigpiod
 
-Example Java programs are located at:
-/opt/pi4j/examples
-
-You can compile the examples using this script:
-sudo /opt/pi4j/examples/build
-
-Please see https://pi4j.com for more information.
+ 2月 17 19:15:28 raspberrypi systemd[1]: Starting Daemon required to control GPIO pins via pigpio...
 ```
