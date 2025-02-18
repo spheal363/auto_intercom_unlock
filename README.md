@@ -14,7 +14,7 @@ $ ngrok http http://localhost:8080
 ```
 
 ```bash
-sdoi@raspberrypi:~/auto_intercom_unlock/auto-intercom-app $ mvn jetty:run
+~/auto_intercom_unlock/auto-intercom-app $ mvn jetty:run
 [INFO] Scanning for projects...
 [INFO] 
 [INFO] ---------------------< xyz.sdoi:auto-intercom-app >---------------------
