@@ -1,0 +1,29 @@
+{
+    "messages": [
+        {
+            "type": "image",
+            "originalContentUrl": "ここが変わる",
+            "previewImageUrl": "ここが変わる"
+        },
+        {
+            "type": "template",
+            "altText": "（テスト）誰かがインターホンを押したみたい",
+            "template": {
+                "type": "confirm",
+                "text": "（テスト）誰かがインターホンを押したよ。ドア開ける?",
+                "actions": [
+                    {
+                        "type": "message",
+                        "label": "あける",
+                        "text": "あける"
+                    },
+                    {
+                        "type": "message",
+                        "label": "あけない",
+                        "text": "あけない"
+                    }
+                ]
+            }
+        }
+    ]
+}
