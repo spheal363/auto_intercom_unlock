@@ -1,6 +1,7 @@
 *.class
 src/main/resources/config.properties
 auto-intercom-app/src/main/resources/config.properties
+auto-intercom-app/src/main/resources/IntercomNotify.json
 auto-intercom-app/target/
 main/out/
 auto-intercom-app/dependency-reduced-pom.xml
