@@ -1,6 +1,13 @@
 # インターホン自動開錠IoT
 自宅のインターホンが押されたことを検知してスマホから開錠
 
+## (事前準備)Ngrokの起動
+```
+$ ngrok http http://localhost:8080
+```
+[LINE Developer](https://developers.line.biz/console)で設定
+![スクリーンショット 2025-02-17 191112](https://github.com/user-attachments/assets/beca5da6-a2e0-4d77-a5b0-e3dd943e635b)
+
 ## 実行(maven)
 ```bash
 ~/auto_intercom_unlock/auto-intercom-app $ mvn clean package
