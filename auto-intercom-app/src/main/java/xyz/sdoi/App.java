@@ -69,7 +69,7 @@ public class App {
             int total = red + green + blue;
             double greenRatio = total > 0 ? (double) green / total : 0;
 
-            if (total < 80 && greenRatio > 0.5 && !notificationSent) {
+            if (green > 15 && !notificationSent) {
                 sendLineNotification();
 
                 notificationSent = true;

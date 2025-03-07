@@ -9,20 +9,25 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class CaptureImage {
+    // OpenCVのネイティブライブラリをロード
     static {
         System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
     }
 
+    /**
+     * カメラ撮影→画像保存→画像処理(モニタ部分の射影変換) まで行うメソッド
+     */
     public static void Capture() {
-        String imagePath = "/home/sdoi/captured.jpg"; // 保存パス
+        String imagePath = "/home/sdoi/captured.jpg";  // 保存パス
         String command = "libcamera-still -o " + imagePath + " --nopreview"; 
 
         try {
+            // カメラ撮影をコマンド実行
             Process process = Runtime.getRuntime().exec(command);
             process.waitFor();
             System.out.println("画像を保存しました: " + imagePath);
 
-            // 画像処理: モニタ部分の検出と射影変換
+            // 撮影した画像を読み込み・処理
             processImage(imagePath);
 
         } catch (IOException | InterruptedException e) {
@@ -30,59 +35,45 @@ public class CaptureImage {
         }
     }
 
+    /**
+     * 画像を読み込み → 手動で指定したモニタの四隅を使って射影変換 → 保存
+     */
     public static void processImage(String imagePath) {
-        Mat image = Imgcodecs.imread(imagePath); // 画像を読み込む
+        // 画像をOpenCVで読み込む（BGR形式）
+        Mat image = Imgcodecs.imread(imagePath);
 
         if (image.empty()) {
             System.err.println("画像の読み込みに失敗しました: " + imagePath);
             return;
         }
 
-        Mat edges = new Mat();
-        Imgproc.GaussianBlur(image, image, new Size(5, 5), 0);
-        Imgproc.Canny(image, edges, 100, 200);
+        // 1) 手動でモニタの四隅を指定 (例: 左上, 右上, 左下, 右下)
+        MatOfPoint2f ptsSrc = new MatOfPoint2f(
+            new Point(524, 200),  // 左上
+            new Point(1895, 87),  // 右上
+            new Point(732, 1098), // 左下
+            new Point(1883, 991)  // 右下
+        );
 
-        List<MatOfPoint> contours = new ArrayList<>();
-        Mat hierarchy = new Mat();
-        Imgproc.findContours(edges, contours, hierarchy, Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
+        // 2) 出力先の4点 (例: 480x270 に変換)
+        int W = 480, H = 270;
+        MatOfPoint2f ptsDst = new MatOfPoint2f(
+            new Point(0, 0),    // 変換先の左上
+            new Point(W, 0),    // 変換先の右上
+            new Point(0, H),    // 変換先の左下
+            new Point(W, H)     // 変換先の右下
+        );
 
-        MatOfPoint2f largestRect = null;
-        double maxArea = 0;
+        // 3) 射影変換行列を求める
+        Mat transformationMatrix = Imgproc.getPerspectiveTransform(ptsSrc, ptsDst);
 
-        for (MatOfPoint contour : contours) {
-            MatOfPoint2f approxCurve = new MatOfPoint2f();
-            MatOfPoint2f contour2f = new MatOfPoint2f(contour.toArray());
-            double perimeter = Imgproc.arcLength(contour2f, true);
-            Imgproc.approxPolyDP(contour2f, approxCurve, 0.02 * perimeter, true);
+        // 4) warpPerspectiveで変換を適用
+        Mat warped = new Mat();
+        Imgproc.warpPerspective(image, warped, transformationMatrix, new Size(W, H));
 
-            if (approxCurve.total() == 4) {
-                double area = Imgproc.contourArea(approxCurve);
-                if (area > maxArea) {
-                    maxArea = area;
-                    largestRect = approxCurve;
-                }
-            }
-        }
-
-        if (largestRect != null) {
-            Point[] rectPoints = largestRect.toArray();
-            Point[] targetPoints = {
-                new Point(0, 0),
-                new Point(400, 0),
-                new Point(400, 300),
-                new Point(0, 300)
-            };
-            MatOfPoint2f targetMat = new MatOfPoint2f(targetPoints);
-
-            Mat transformationMatrix = Imgproc.getPerspectiveTransform(largestRect, targetMat);
-            Mat correctedImage = new Mat();
-            Imgproc.warpPerspective(image, correctedImage, transformationMatrix, new Size(400, 300));
-
-            String processedImagePath = "/home/sdoi/captured.jpg";
-            Imgcodecs.imwrite(processedImagePath, correctedImage);
-            System.out.println("補正した画像を保存しました: " + processedImagePath);
-        } else {
-            System.err.println("モニタ部分の検出に失敗しました。");
-        }
+        // 5) 変換後の画像を保存
+        String outputPath = "/home/sdoi/captured.jpg";
+        Imgcodecs.imwrite(outputPath, warped);
+        System.out.println("モニタを射影変換した画像を保存: " + outputPath);
     }
 }
