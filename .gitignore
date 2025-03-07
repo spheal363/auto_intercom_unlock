@@ -4,3 +4,5 @@ auto-intercom-app/src/main/resources/config.properties
 auto-intercom-app/src/main/resources/IntercomNotify.json
 auto-intercom-app/target/
 main/out/
+auto_intercom.sh
+start_ngrok.sh

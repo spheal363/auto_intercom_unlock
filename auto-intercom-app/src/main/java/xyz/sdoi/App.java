@@ -5,94 +5,94 @@ import com.pi4j.Pi4J;
 import com.pi4j.context.Context;
 import com.pi4j.io.i2c.I2C;
 import com.pi4j.io.i2c.I2CConfig;
-import org.opencv.core.Core;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 public class App {
     private static final int SENSOR_ADDRESS = 0x2A; // センサのI2Cアドレス
 
-    /**
-     * Pi4JのContextをアプリ全体で使い回すため静的保持
-     */
+    // Pi4Jのコンテキスト（アプリ全体で共有）
     private static Context pi4j;
     private static I2C i2c;
     private static ColorSensorReader colorSensorReader;
-
-    // 通知済みフラグをクラスレベルで保持
+    
+    // 通知済みフラグ
     private static boolean notificationSent = false;
 
     /**
-     * (1) アプリの初期化
-     *     - Pi4JのContext生成
-     *     - I2Cのセットアップ
-     *     - カラーセンサリーダーの準備
+     * アプリの初期化
+     * - Pi4JのContext生成
+     * - I2Cのセットアップ
+     * - カラーセンサリーダーの準備
      */
     public static void init() throws Exception {
-        // Pi4Jのコンテキスト生成
         pi4j = Pi4J.newAutoContext();
 
-        // I2C設定
         I2CConfig i2cConfig = I2C.newConfigBuilder(pi4j)
                 .id("I2C1")
-                .bus(1) // 使用するI2Cバス番号
+                .bus(1)
                 .device(SENSOR_ADDRESS)
                 .build();
 
-        // I2Cインスタンス生成
         i2c = pi4j.create(i2cConfig);
-
-        // カラーセンサリーダーの生成 (初期化含む)
         colorSensorReader = new ColorSensorReader(i2c);
 
-        // opencv
-        System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
-        
-        // json書き換え
+        // ngrokのJSON更新
         NgrokJsonUpdater.updateJson();
-        System.out.println("App: init完了");
+
+        System.out.println("App: 初期化完了");
     }
 
     /**
-     * (2) 常駐ループ処理
-     *     - ColorSensorReaderでセンサー値を取得
-     *     - 緑判定してLINE通知 + サーボ駆動
+     * センサーデータを取得し、通知判定を行う
      */
-    public static void mainLoop() throws InterruptedException {
-        // 永遠に動かす場合
-        // while(true) { ... } の中でセンサーを読んで通知
-        // ただし、ServletContextListenerから呼ぶ場合は「停止方法」に注意してください。
-        while (true) {
-            int red   = colorSensorReader.readRed();
-            int green = colorSensorReader.readGreen();
-            int blue  = colorSensorReader.readBlue();
+    private static void analyzeSensorData() throws InterruptedException {
+        int red = colorSensorReader.readRed();
+        int green = colorSensorReader.readGreen();
+        int blue = colorSensorReader.readBlue();
 
-            // 緑の割合を計算
-            int total = red + green + blue;
-            double greenRatio = total > 0 ? (double) green / total : 0;
+        int total = red + green + blue;
+        double greenRatio = total > 0 ? (double) green / total : 0;
 
-            if (green > 15 && !notificationSent) {
-                sendLineNotification();
+        if (green > 15 && !notificationSent) {
+            sendLineNotification();
+            notificationSent = true;
+            
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("M月 dd HH:mm:ss");
+            String timestamp = LocalDateTime.now().format(formatter);
 
-                notificationSent = true;
-                System.out.println("緑値が相対的に高いため通知を送信しました: "
-                        + "赤 " + red + " 緑 " + green + " 青 " + blue
-                        + " 総和 " + total + " 緑割合 " + greenRatio);
+            System.out.printf("%s 通知送信: 赤 %d 緑 %d 青 %d 総和 %d 緑割合 %.2f%n",
+                                timestamp, red, green, blue, total, greenRatio);
 
-                CaptureImage.Capture();
-
-                Thread.sleep(10000); // 10秒スリープ
-                notificationSent = false; // 再度通知を許可
-            } else {
-                System.out.println("赤: " + red + " 緑: " + green + " 青: " + blue
-                        + " 総和: " + total + " 緑割合: " + greenRatio);
-            }
-
-            Thread.sleep(1000); // 1秒ごとに値を確認
+            CaptureImage.capture();
+            Thread.sleep(10000); // 10秒待機
+            notificationSent = false; // 再度通知を許可
+        } else {
+            // System.out.printf("データログ: 赤 %d 緑 %d 青 %d 総和 %d 緑割合 %.2f%n",
+            //                   red, green, blue, total, greenRatio);
         }
     }
 
     /**
-     * (3) 終了処理
-     *     - pi4jシャットダウンなど
+     * センサーを監視し続けるループ処理
+     */
+    public static void mainLoop() {
+        try {
+            while (true) {
+                analyzeSensorData();
+                Thread.sleep(100); // 0.1秒ごとにセンサー値を確認
+            }
+        } catch (InterruptedException e) {
+            System.out.println("App: ループ処理が中断されました");
+            Thread.currentThread().interrupt();
+        } catch (Exception e) {
+            System.err.println("App: 致命的エラーが発生: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * アプリ終了処理
      */
     public static void shutdown() {
         if (pi4j != null) {
@@ -102,13 +102,14 @@ public class App {
     }
 
     /**
-     * ローカル開発/テスト用: 単独実行できるmainメソッド
+     * アプリケーションのエントリーポイント
      */
     public static void main(String[] args) {
         try {
             init();
             mainLoop();
         } catch (Exception e) {
+            System.err.println("App: 実行時エラーが発生: " + e.getMessage());
             e.printStackTrace();
         } finally {
             shutdown();
@@ -120,19 +121,14 @@ public class App {
      */
     private static void sendLineNotification() {
         try {
-            // トークン読み込み
             String token = TokenLoader.loadToken();
+            String jsonMessage = MessageCreate.lineMessageCreate("IntercomNotify");
 
-            // メッセージ作成
-            String jsonMessage = MessageCreate.LINEMessageCreate("IntercomNotify");
-
-            // LINE通知送信
-            LineBroadcaster broadcaster = new LineBroadcaster();
-            broadcaster.sendBroadcastMessage(token, jsonMessage);
+            new LineBroadcaster().sendBroadcastMessage(token, jsonMessage);
         } catch (IOException e) {
-            System.err.println("LINE通知送信中にエラーが発生: " + e.getMessage());
+            System.err.println("LINE通知送信エラー: " + e.getMessage());
         } catch (Exception e) {
-            System.err.println("予期せぬエラーが発生: " + e.getMessage());
+            System.err.println("予期せぬエラー: " + e.getMessage());
         }
     }
 }

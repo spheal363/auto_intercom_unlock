@@ -3,12 +3,13 @@ package xyz.sdoi;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 import javax.servlet.annotation.WebListener;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 @WebListener
 public class AppContextListener implements ServletContextListener {
 
     private Thread backgroundThread;
-    private volatile boolean running = true;
+    private final AtomicBoolean running = new AtomicBoolean(true);
 
     @Override
     public void contextInitialized(ServletContextEvent sce) {
@@ -17,31 +18,33 @@ public class AppContextListener implements ServletContextListener {
         backgroundThread = new Thread(() -> {
             try {
                 App.init();
-                // mainLoopの中で無限ループするなら、ここで呼び出すだけ
-                // 途中で止める必要があるなら、interrupt()などの仕組みを検討
-                App.mainLoop();
-            } catch (InterruptedException e) {
-                System.out.println("バックグラウンドスレッドがInterrupted");
+                while (running.get()) {
+                    App.mainLoop();
+                }
             } catch (Exception e) {
+                System.err.println("バックグラウンドスレッドエラー: " + e.getMessage());
                 e.printStackTrace();
             } finally {
                 App.shutdown();
             }
         });
 
+        backgroundThread.setDaemon(true); // JVM終了時にスレッドを自動終了
         backgroundThread.start();
     }
 
     @Override
     public void contextDestroyed(ServletContextEvent sce) {
         System.out.println("=== AppContextListener: destroy ===");
-        running = false;
+        running.set(false);
+
         if (backgroundThread != null && backgroundThread.isAlive()) {
             backgroundThread.interrupt();
             try {
                 backgroundThread.join();
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                Thread.currentThread().interrupt();
+                System.err.println("AppContextListener: スレッド停止中に割り込み発生");
             }
         }
     }

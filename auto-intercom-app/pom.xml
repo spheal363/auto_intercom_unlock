@@ -41,7 +41,7 @@
       <version>${pi4j.version}</version>
     </dependency>
 
-    <!-- Jackson (JSONパース用), LINE Webhook JSONを読むのに便利 -->
+    <!-- Jackson (JSONパース用) -->
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-databind</artifactId>
@@ -54,11 +54,6 @@
       <artifactId>javax.servlet-api</artifactId>
       <version>4.0.1</version>
       <scope>provided</scope>
-    </dependency>
-    <dependency>
-        <groupId>org.openpnp</groupId>
-        <artifactId>opencv</artifactId>
-        <version>4.5.1-2</version> <!-- OpenCV のバージョン -->
     </dependency>
 
     <dependency>
@@ -83,7 +78,7 @@
         </configuration>
       </plugin>
 
-      <!-- Maven WAR Plugin (3.x系 推奨) -->
+      <!-- Maven WAR Plugin -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-war-plugin</artifactId>

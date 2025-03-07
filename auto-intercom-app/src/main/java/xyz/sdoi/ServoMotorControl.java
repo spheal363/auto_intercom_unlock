@@ -1,41 +1,59 @@
 package xyz.sdoi;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
+import java.io.IOException;
 
 public class ServoMotorControl {
-    public static void IntercomPush() {
+    private static final String SERVO_PUSH = "pigs s 18 900";  // ボタン押し
+    private static final String SERVO_RELEASE = "pigs s 18 1500"; // ボタン戻し
+    private static final String SERVO_UNLOCK = "pigs s 18 2300"; // 開錠
+
+    private static final int SHORT_DELAY_MS = 200;
+    private static final int LONG_DELAY_MS = 2000;
+
+    /**
+     * インターホンを押し、開錠操作を実行
+     */
+    public static void intercomPush() {
         try {
-            // pigsコマンドを実行して押す
-            Process process = Runtime.getRuntime().exec("pigs s 18 900");
-            int exitCode = process.waitFor();
-            System.out.println("通話push");
-            Thread.sleep(200);
+            executePigsCommand(SERVO_PUSH, "通話push");
+            Thread.sleep(SHORT_DELAY_MS);
 
-            // pigsコマンドを実行して戻す
-            process = Runtime.getRuntime().exec("pigs s 18 1500");
-            exitCode = process.waitFor();
-            Thread.sleep(200);
+            executePigsCommand(SERVO_RELEASE, "ボタン戻し");
+            Thread.sleep(SHORT_DELAY_MS);
 
-            Thread.sleep(2000);
+            Thread.sleep(LONG_DELAY_MS);
 
-            // pigsコマンドを実行して押す
-            process = Runtime.getRuntime().exec("pigs s 18 2300");
-            exitCode = process.waitFor();
-            System.out.println("開錠push");
-            Thread.sleep(200);
+            executePigsCommand(SERVO_UNLOCK, "開錠push");
+            Thread.sleep(SHORT_DELAY_MS);
 
-            // pigsコマンドを実行して戻す
-            process = Runtime.getRuntime().exec("pigs s 18 1500");
-            exitCode = process.waitFor();
-            Thread.sleep(200);
-
-        } catch (Exception e) {
-            e.printStackTrace();
+            executePigsCommand(SERVO_RELEASE, "ボタン戻し");
+            Thread.sleep(SHORT_DELAY_MS);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            System.err.println("ServoMotorControl: スレッドが中断されました");
+        } catch (IOException e) {
+            System.err.println("ServoMotorControl: PIGSコマンド実行エラー - " + e.getMessage());
         }
     }
 
+    /**
+     * PIGSコマンドを実行する
+     */
+    private static void executePigsCommand(String command, String actionName) throws IOException, InterruptedException {
+        Process process = Runtime.getRuntime().exec(command);
+        int exitCode = process.waitFor();
+
+        if (exitCode == 0) {
+            System.out.println("ServoMotorControl: " + actionName + " 成功");
+        } else {
+            throw new IOException("PIGSコマンドが異常終了 (exit code: " + exitCode + ")");
+        }
+    }
+
+    /**
+     * テスト用のメインメソッド
+     */
     public static void main(String[] args) {
-        IntercomPush();
+        intercomPush();
     }
 }
