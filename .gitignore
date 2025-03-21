@@ -6,3 +6,6 @@ auto-intercom-app/target/
 main/out/
 auto_intercom.sh
 start_ngrok.sh
+auto-intercom-app/app.pid
+auto-intercom-app/dependency-reduced-pom.xml
+auto-intercom-app/output.log
