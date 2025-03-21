@@ -12,7 +12,7 @@ public class CaptureImage {
     public static void capture() {
         try {
             executeCaptureCommand();
-            System.out.println("画像を保存しました: " + IMAGE_PATH);
+            // System.out.println("画像を保存しました: " + IMAGE_PATH);
         } catch (IOException e) {
             System.err.println("CaptureImage: 画像取得エラー（IO例外）: " + e.getMessage());
         } catch (InterruptedException e) {
